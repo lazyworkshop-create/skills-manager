@@ -367,14 +367,14 @@ Interactive Mode:
 Examples:
   python install_skills.py --global-install --yes      # Install all skills to global folder silently
   python install_skills.py --project-install           # Install to current folder (interactive selection)
-  python install_skills.py --check-updates             # Update currently installed skills
+  python install_skills.py --upgrade                   # Update currently installed skills
   python install_skills.py --ls                        # Browse and install new skills from remote
 """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--global-install", action="store_true", help="Install to global VS Code folder (~/.vscode/skills)")
     parser.add_argument("--project-install", action="store_true", help="Install to current project folder (./skills)")
-    parser.add_argument("--check-updates", action="store_true", help="Check and update all installed skills")
+    parser.add_argument("--upgrade", action="store_true", help="Check and update all installed skills")
     parser.add_argument("--ls", action="store_true", help="Browse available remote skills interactively")
     parser.add_argument("--yes", "-y", action="store_true", help="Skip interactive confirmation (installs all)")
     args = parser.parse_args()
@@ -391,14 +391,14 @@ Examples:
              print("=== Browse Remote Skills ===")
              # We do NOT ask for target_dir yet for ls command, unless it was passed as arg
              pass
-        elif not args.check_updates:
+        elif not args.upgrade:
              # Default install mode
              print("=== Skills Manager ===")
              target_dir = get_target_directory()
-        # If check_updates is true, we fall through to below default
+        # If upgrade is true, we fall through to below default
 
-    # Only enforce target_dir if we are NOT in ls mode or check_updates mode with no dir logic
-    # Actually, check_updates needs a target dir.
+    # Only enforce target_dir if we are NOT in ls mode or upgrade mode with no dir logic
+    # Actually, upgrade needs a target dir.
     # ls mode will ask for it inside if needed.
     if target_dir is None and not args.ls: 
         target_dir = get_target_directory()
@@ -409,7 +409,7 @@ Examples:
     # Operations
     if args.ls:
         browse_and_install_remote_skills(target_dir)
-    elif args.check_updates:
+    elif args.upgrade:
         print("Checking for updates on installed skills...")
         # Identify which skills are currently installed in the target dir
         installed_skills = []
