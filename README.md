@@ -64,18 +64,22 @@ Instead of manually editing configuration files, you can browse the remote repos
 graph TD
     Start[Run with --ls] --> Fetch[Clone Remote Repo (Temp)]
     Fetch --> Scan[Scan 'plugins' folder]
-    Scan --> Display[Display Categories]
+    Scan --> Display[Display Categories & Skills]
     
-    Display --> SelectCat[Select Category]
-    SelectCat --> SelectSkill[Select Skills]
+    Display --> Select[Select Skills]
+    Select --> Action{Choose Action}
     
-    SelectSkill --> Choice{Action?}
-    Choice -->|Install Only| Copy[Copy Files]
-    Choice -->|Install + Config| UpdateConfig[Update skills.json]
-    UpdateConfig --> Copy
+    Action -->|Install Only| CheckLoc{Location Set?}
+    Action -->|Install + Config| CheckLoc
     
-    Copy --> Deps[Install Dependencies]
-    Deps --> End[Done]
+    CheckLoc -- No --> Prompt[Prompt for Location]
+    CheckLoc -- Yes --> Install
+    Prompt --> Install[Copy Files & Install Deps]
+    
+    Install --> ConfigCheck{Action == Config?}
+    ConfigCheck -- Yes --> Update[Update skills.json]
+    ConfigCheck -- No --> End[Done]
+    Update --> End
 ```
 
 ---
@@ -138,26 +142,30 @@ The `skills.json` file maps a local skill name to its path in the remote Git rep
 ### Installation Logic
 ```mermaid
 graph TD
-    A[Start Script] --> Args{Check Arguments}
+    Start[Start Script] --> CheckArgs{Check Flags}
     
-    Args -- --ls --> Browse[Remote Discovery]
-    Args -- --upgrade --> Update[Update Existing]
-    Args -- None/Install --> Select[Interactive / Config Install]
+    %% Branch LS
+    CheckArgs -- --ls --> CloneTmp[Clone Repo]
+    CloneTmp --> Browse[Browse & Select]
+    Browse --> ActionLS[Choose Action]
+    ActionLS --> LocLS[Prompt Location]
+    LocLS --> InstLS[Install Skills]
     
-    Select --> Loc{Select Location}
-    Loc --> Global[Global Path]
-    Loc --> Project[Project Path]
-    Loc --> Claude[Claude Path]
+    %% Branch Upgrade
+    CheckArgs -- --upgrade --> LocUp[Determine Location]
+    LocUp --> ScanLocal[Scan Installed Skills]
+    ScanLocal --> InstDef[High-Level Install]
     
-    Update --> CheckDir[Scan Target Dir]
-    CheckDir --> Match[Match with skills.json]
+    %% Branch Interactive
+    CheckArgs -- None --> LocInt[Prompt Location]
+    LocInt --> SelInt[Select from Config]
+    SelInt --> InstDef
     
-    Browse --> Install[Install Logic]
-    Match --> Install
+    %% Install Logic
+    InstDef --> CloneDef[Clone Repo]
+    CloneDef --> CopyFile[Copy Files]
+    InstLS --> CopyFile
     
-    Install --> Git[Git Clone Shallow]
-    Git --> Copy[Copy Skill Folder]
-    Copy --> DepMgr{Manage Dependencies}
-    DepMgr --> Pip[pip install -r requirements.txt]
-    DepMgr --> Tools[Check Specific Tools (dbt/sqlfluff)]
+    CopyFile --> Deps[Manage Dependencies]
+    Deps --> Tools[Check Tools (dbt/sqlfluff)]
 ```
