@@ -62,23 +62,23 @@ Instead of manually editing configuration files, you can browse the remote repos
 ### Discovery Process Flow
 ```mermaid
 graph TD
-    Start[Run with --ls] --> Fetch[Clone Remote Repo (Temp)]
-    Fetch --> Scan[Scan 'plugins' folder]
-    Scan --> Display[Display Categories & Skills]
+    Start[Run with --ls] --> Fetch["Clone Remote Repo (Temp)"]
+    Fetch --> Scan["Scan 'plugins' folder"]
+    Scan --> Display["Display Categories and Skills"]
     
     Display --> Select[Select Skills]
     Select --> Action{Choose Action}
     
-    Action -->|Install Only| CheckLoc{Location Set?}
-    Action -->|Install + Config| CheckLoc
+    Action -->|"Install Only"| CheckLoc{Location Set?}
+    Action -->|"Install + Config"| CheckLoc
     
-    CheckLoc -- No --> Prompt[Prompt for Location]
-    CheckLoc -- Yes --> Install
-    Prompt --> Install[Copy Files & Install Deps]
+    CheckLoc -->|No| Prompt[Prompt for Location]
+    CheckLoc -->|Yes| Install
+    Prompt --> Install["Copy Files and Install Deps"]
     
     Install --> ConfigCheck{Action == Config?}
-    ConfigCheck -- Yes --> Update[Update skills.json]
-    ConfigCheck -- No --> End[Done]
+    ConfigCheck -->|Yes| Update["Update skills.json"]
+    ConfigCheck -->|No| End[Done]
     Update --> End
 ```
 
@@ -145,19 +145,19 @@ graph TD
     Start[Start Script] --> CheckArgs{Check Flags}
     
     %% Branch LS
-    CheckArgs -- --ls --> CloneTmp[Clone Repo]
-    CloneTmp --> Browse[Browse & Select]
+    CheckArgs -->|"--ls"| CloneTmp[Clone Repo]
+    CloneTmp --> Browse[Browse and Select]
     Browse --> ActionLS[Choose Action]
     ActionLS --> LocLS[Prompt Location]
     LocLS --> InstLS[Install Skills]
     
     %% Branch Upgrade
-    CheckArgs -- --upgrade --> LocUp[Determine Location]
+    CheckArgs -->|"--upgrade"| LocUp[Determine Location]
     LocUp --> ScanLocal[Scan Installed Skills]
     ScanLocal --> InstDef[High-Level Install]
     
     %% Branch Interactive
-    CheckArgs -- None --> LocInt[Prompt Location]
+    CheckArgs -->|None| LocInt[Prompt Location]
     LocInt --> SelInt[Select from Config]
     SelInt --> InstDef
     
@@ -167,5 +167,5 @@ graph TD
     InstLS --> CopyFile
     
     CopyFile --> Deps[Manage Dependencies]
-    Deps --> Tools[Check Tools (dbt/sqlfluff)]
+    Deps --> Tools["Check Tools (dbt/sqlfluff)"]
 ```
