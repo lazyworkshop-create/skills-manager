@@ -229,6 +229,69 @@ def discover_skills(repo_root):
                          })
     return discovered
 
+def browse_categories_and_skills(skills):
+    """
+    Interactive selection of category and then skills.
+    
+    Args:
+        skills (list): List of skill dictionaries.
+
+    Returns:
+        list: Selected skill dictionaries.
+    """
+    categories = sorted(list(set(s['category'] for s in skills)))
+    
+    while True:
+        print("\n=== Remote Categories ===")
+        for idx, cat in enumerate(categories, 1):
+            print(f"{idx}. {cat}")
+        print("q. Quit")
+
+        cat_selection = input("\nSelect Category (Number): ").strip()
+        if cat_selection.lower() == 'q':
+            return []
+
+        try:
+            cat_idx = int(cat_selection) - 1
+            if not (0 <= cat_idx < len(categories)):
+                print("Invalid number.")
+                continue
+        except ValueError:
+            print("Invalid input.")
+            continue
+        
+        selected_category = categories[cat_idx]
+        category_skills = sorted([s for s in skills if s['category'] == selected_category], key=lambda x: x['name'])
+        
+        print(f"\n=== Skills in '{selected_category}' ===")
+        for idx, skill in enumerate(category_skills, 1):
+            installed_mark = "* " if skill['name'] in SKILLS_MAPPING else "  "
+            print(f"{idx}. {installed_mark}{skill['name']}")
+        
+        print(f"\n(* = Already in configuration)")
+        print("Enter numbers to install (e.g. '1 3') or 'b' to back.")
+        
+        skill_selection = input("Selection: ").strip()
+        if skill_selection.lower() == 'b':
+            continue
+            
+        selected_skills_to_return = []
+        try:
+            parts = skill_selection.split()
+            valid = True
+            for part in parts:
+                idx = int(part) - 1
+                if 0 <= idx < len(category_skills):
+                    selected_skills_to_return.append(category_skills[idx])
+                else:
+                    print(f"Warning: {part} out of range.")
+                    valid = False
+            
+            if valid and selected_skills_to_return:
+                return selected_skills_to_return
+        except ValueError:
+             print("Invalid input.")
+
 def browse_and_install_remote_skills(target_dir):
     """List remote skills and allow interactive installation."""
     print("Fetching remote skill list...")
@@ -244,47 +307,23 @@ def browse_and_install_remote_skills(target_dir):
         if not skills:
             print("No skills found in the remote repository structure (plugins/*/skills/*).")
             return
-
-        # Sort by category then name
-        skills.sort(key=lambda x: (x['category'], x['name']))
-
-        print("\n=== Available Remote Skills ===")
-        print(f"{'No.':<4} {'Category':<25} {'Skill Name':<30}")
-        print("-" * 60)
         
-        for idx, skill in enumerate(skills, 1):
-            installed_mark = "*" if skill['name'] in SKILLS_MAPPING else " "
-            print(f"{str(idx) + '.':<4} {skill['category']:<25} {skill['name']:<30} {installed_mark}")
-        
-        print(f"\n(* = Already in configuration)")
-        print("Enter numbers to install/update (e.g. '1 3 5') or 'q' to quit.")
-        selection = input("Selection: ").strip()
-        
-        if selection.lower() == 'q':
+        selected_skills = browse_categories_and_skills(skills)
+        if not selected_skills:
+            print("No skills selected.")
             return
 
-        selected_indices = []
-        try:
-            parts = selection.split()
-            for part in parts:
-                idx = int(part) - 1
-                if 0 <= idx < len(skills):
-                    selected_indices.append(idx)
-        except ValueError:
-            print("Invalid input.")
-            return
-
-        if not selected_indices:
-            print("No valid selection.")
-            return
+        # If target_dir was not provided initially, ask for it now
+        if target_dir is None:
+             target_dir = get_target_directory()
+             print(f"\nLocation: {target_dir}")
 
         # Create target dir if not exists
         if not target_dir.exists():
              target_dir.mkdir(parents=True)
 
         config_changed = False
-        for idx in selected_indices:
-            skill = skills[idx]
+        for skill in selected_skills:
             print(f"\nProcessing {skill['name']}...")
             
             dest_path = target_dir / skill['name']
@@ -350,17 +389,22 @@ Examples:
         # Check context
         if args.ls:
              print("=== Browse Remote Skills ===")
-             target_dir = get_target_directory()
+             # We do NOT ask for target_dir yet for ls command, unless it was passed as arg
+             pass
         elif not args.check_updates:
              # Default install mode
              print("=== Skills Manager ===")
              target_dir = get_target_directory()
         # If check_updates is true, we fall through to below default
 
-    if target_dir is None:
+    # Only enforce target_dir if we are NOT in ls mode or check_updates mode with no dir logic
+    # Actually, check_updates needs a target dir.
+    # ls mode will ask for it inside if needed.
+    if target_dir is None and not args.ls: 
         target_dir = get_target_directory()
 
-    print(f"\nLocation: {target_dir}")
+    if target_dir:
+        print(f"\nLocation: {target_dir}")
 
     # Operations
     if args.ls:
