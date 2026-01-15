@@ -25,14 +25,25 @@ def get_target_directory():
     print("\nSelect installation location:")
     print("1. [Global] VS Code User Folder (~/.vscode/skills)")
     print("2. [Project] Current Workspace (./skills)")
-    print("3. [Custom] Enter custom path")
+    print("3. [Claude] Claude Desktop (APPDATA/Claude/skills)")
+    print("4. [Custom] Enter custom path")
     
-    choice = input("Enter choice (1/2/3) [Default: 2]: ").strip()
+    choice = input("Enter choice (1/2/3/4) [Default: 2]: ").strip()
     
     if choice == "1":
         # Windows: %USERPROFILE%\.vscode\skills, Linux/Mac: ~/.vscode/skills
         return Path.home() / ".vscode" / "skills"
     elif choice == "3":
+        # Claude Desktop location
+        if sys.platform == "win32":
+            app_data = os.environ.get("APPDATA")
+            base = Path(app_data) if app_data else Path.home() / "AppData" / "Roaming"
+            return base / "Claude" / "skills"
+        elif sys.platform == "darwin":
+            return Path.home() / "Library" / "Application Support" / "Claude" / "skills"
+        else:
+             return Path.home() / ".config" / "Claude" / "skills"
+    elif choice == "4":
         custom_path = input("Enter absolute path: ").strip()
         return Path(custom_path)
     else:
@@ -374,6 +385,7 @@ Examples:
     )
     parser.add_argument("--global-install", action="store_true", help="Install to global VS Code folder (~/.vscode/skills)")
     parser.add_argument("--project-install", action="store_true", help="Install to current project folder (./skills)")
+    parser.add_argument("--claude-install", action="store_true", help="Install to Claude Desktop folder")
     parser.add_argument("--upgrade", action="store_true", help="Check and update all installed skills")
     parser.add_argument("--ls", action="store_true", help="Browse available remote skills interactively")
     parser.add_argument("--yes", "-y", action="store_true", help="Skip interactive confirmation (installs all)")
@@ -385,6 +397,15 @@ Examples:
         target_dir = Path.home() / ".vscode" / "skills"
     elif args.project_install:
         target_dir = Path(os.getcwd()) / "skills"
+    elif args.claude_install:
+        if sys.platform == "win32":
+            app_data = os.environ.get("APPDATA")
+            base = Path(app_data) if app_data else Path.home() / "AppData" / "Roaming"
+            target_dir = base / "Claude" / "skills"
+        elif sys.platform == "darwin":
+            target_dir = Path.home() / "Library" / "Application Support" / "Claude" / "skills"
+        else:
+            target_dir = Path.home() / ".config" / "Claude" / "skills"
     else:
         # Check context
         if args.ls:
