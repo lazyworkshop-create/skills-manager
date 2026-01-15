@@ -82,7 +82,8 @@ def check_installed(tool_name, check_command):
 def install_python_package(package_name):
     """Install a Python package using pip."""
     print(f"Installing {package_name}...")
-    run_command(f"{sys.executable} -m pip install {package_name}")
+    # Use quotes around sys.executable to handle paths with spaces
+    run_command(f'"{sys.executable}" -m pip install {package_name}')
 
 def manage_dependencies(skill_name, skill_path):
     """Check and install dependencies for a skill."""
@@ -92,7 +93,7 @@ def manage_dependencies(skill_name, skill_path):
     req_file = skill_path / "requirements.txt"
     if req_file.exists():
         print(f"  Found requirements.txt. Installing...")
-        run_command(f"{sys.executable} -m pip install -r requirements.txt", cwd=skill_path)
+        run_command(f'"{sys.executable}" -m pip install -r requirements.txt', cwd=skill_path)
     
     # Specific tool checks based on skill name mapping or config
     # Ideally this should also be in skills.json, but keeping hardcoded logic for now as per previous known logic
