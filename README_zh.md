@@ -11,6 +11,7 @@
 *   **依赖管理**：自动处理 `requirements.txt` 和特定工具（如 `dbt`、`sqlfluff`）。
 *   **多目标支持**：支持 VS Code（全局/项目）和 Claude Desktop。
 *   **环境检查**：验证 Python、Pip、Git 和版本管理器（uv/pyenv）。
+*   **国际化支持**：内置支持英文和中文界面。
 
 ---
 
@@ -104,7 +105,10 @@ graph TD
 | `--global-install` | 目标为 VS Code 用户目录。 |
 | `--project-install` | 目标为当前工作目录。 |
 | `--claude-install` | 目标为 Claude Desktop 配置目录。 |
+| `--lang` | 显式指定界面语言 (`en` 或 `zh`)。 |
 | `--yes` / `-y` |以此跳过确认提示（适用于脚本）。 |
+
+> **提示**: 在任何交互提示处输入 `q` 或 `Q` 即可退出工具。
 
 ### 示例
 
@@ -113,9 +117,9 @@ graph TD
 python install_skills.py --project-install --upgrade
 ```
 
-**专门为 Claude Desktop 安装：**
+**专门为 Claude Desktop 安装 (中文界面)：**
 ```bash
-python install_skills.py --claude-install --ls
+python install_skills.py --claude-install --ls --lang zh
 ```
 
 ---

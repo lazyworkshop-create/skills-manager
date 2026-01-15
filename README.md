@@ -11,6 +11,7 @@ A cross-platform toolset to manage, discover, and install Agent Skills from a sh
 *   **Dependency Management**: Automatically handles `requirements.txt` and specific tools (like `dbt`, `sqlfluff`).
 *   **Multiple Targets**: Support for VS Code (Global/Project) and Claude Desktop.
 *   **Environment Check**: Validates Python, Pip, Git, and Version Managers (uv/pyenv).
+*   **Internationalization**: Built-in support for English and Chinese Interfaces.
 
 ---
 
@@ -104,7 +105,10 @@ When running interactively, you can choose where to install:
 | `--global-install` | Target the VS Code user directory. |
 | `--project-install` | Target the current working directory. |
 | `--claude-install` | Target the Claude Desktop configuration directory. |
+| `--lang` | Specify interface language explicitly (`en` or `zh`). |
 | `--yes` / `-y` | Skip confirmation prompts (useful for scripts). |
+
+> **Tip**: You can enter `q` or `Q` at any interactive prompt to exit the tool.
 
 ### Examples
 
@@ -113,9 +117,9 @@ When running interactively, you can choose where to install:
 python install_skills.py --project-install --upgrade
 ```
 
-**Install specifically for Claude Desktop:**
+**Install specifically for Claude Desktop (Chinese Interface):**
 ```bash
-python install_skills.py --claude-install --ls
+python install_skills.py --claude-install --ls --lang zh
 ```
 
 ---
