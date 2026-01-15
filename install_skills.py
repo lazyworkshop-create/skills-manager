@@ -155,42 +155,75 @@ def update_or_install_skills(target_dir, specific_skills=None, auto_update=False
             except Exception as e:
                 print(f"Failed to copy {skill_name}: {e}")
 
+def show_interactive_help():
+    print("\n=== Interactive Command Help ===")
+    print("Options:")
+    print("  <Numbers> : Select specific skills by index (separated by space).")
+    print("              Example: '1 3' installs the first and third listed skills.")
+    print("  A         : Install All skills (Default).")
+    print("  H         : Show this help message.")
+    print("================================")
+
 def select_skills(skills_mapping):
     """Interactive skill selection."""
     skills_list = list(skills_mapping.keys())
-    print("\nAvailable Skills:")
-    for idx, name in enumerate(skills_list, 1):
-        print(f"{idx}. {name}")
-    print("A. Install All")
-    
-    selection = input("\nEnter numbers separated by space (e.g., '1 2') or 'A' for all [Default: A]: ").strip()
-    
-    if not selection or selection.upper() == 'A':
-        return None  # None implies all in the current logic
-    
-    selected_keys = []
-    try:
-        parts = selection.split()
-        for part in parts:
-            idx = int(part) - 1
-            if 0 <= idx < len(skills_list):
-                selected_keys.append(skills_list[idx])
+    while True:
+        print("\nAvailable Skills:")
+        for idx, name in enumerate(skills_list, 1):
+            print(f"{idx}. {name}")
+        print("A. Install All")
+        print("H. Help")
+        
+        selection = input("\nEnter numbers separated by space (e.g., '1 2') or 'A' for all [Default: A]: ").strip()
+        
+        if selection.upper() == 'H':
+            show_interactive_help()
+            continue
+            
+        if not selection or selection.upper() == 'A':
+            return None  # None implies all in the current logic
+        
+        selected_keys = []
+        try:
+            parts = selection.split()
+            valid = True
+            for part in parts:
+                try:
+                    idx = int(part) - 1
+                    if 0 <= idx < len(skills_list):
+                        key = skills_list[idx]
+                        if key not in selected_keys:
+                            selected_keys.append(key)
+                    else:
+                        print(f"Warning: Number '{part}' is out of range.")
+                except ValueError:
+                    print(f"Warning: '{part}' is not a number.")
+            
+            if selected_keys:
+                print(f"Selected: {', '.join(selected_keys)}")
+                return selected_keys
             else:
-                print(f"Warning: Invalid number '{part}' ignored.")
-    except ValueError:
-        print("Invalid input format. Defaulting to All.")
-        return None
-        
-    if not selected_keys:
-        print("No valid selection made. Defaulting to All.")
-        return None
-        
-    return selected_keys
+                print("No valid skills selected.")
+        except ValueError:
+            print("Invalid input format.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Manage VS Code Skills")
-    parser.add_argument("--global-install", action="store_true", help="Install to global VS Code folder")
-    parser.add_argument("--project-install", action="store_true", help="Install to current project folder")
+    parser = argparse.ArgumentParser(
+        description="Manage VS Code Skills - Install, update, and manage agent skills.",
+        epilog="""
+Interactive Mode:
+  Run without arguments to enter interactive mode.
+  You will be prompted to select an installation location and specific skills.
+
+Examples:
+  python install_skills.py --global-install --yes      # Install all skills to global folder silently
+  python install_skills.py --project-install           # Install to current folder (interactive selection)
+  python install_skills.py --check-updates --global-install  # Update global skills
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("--global-install", action="store_true", help="Install to global VS Code folder (~/.vscode/skills)")
+    parser.add_argument("--project-install", action="store_true", help="Install to current project folder (./skills)")
     parser.add_argument("--check-updates", action="store_true", help="Check and update all installed skills")
     parser.add_argument("--yes", "-y", action="store_true", help="Skip interactive confirmation (installs all)")
     args = parser.parse_args()
