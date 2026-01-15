@@ -1,0 +1,7 @@
+{
+    "repo_url": "https://github.com/wshobson/agents.git",
+    "skills": {
+        "sql-optimization-patterns": "plugins/developer-essentials/skills/sql-optimization-patterns",
+        "dbt-transformation-patterns": "plugins/data-engineering/skills/dbt-transformation-patterns"
+    }
+}
