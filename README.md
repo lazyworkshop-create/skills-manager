@@ -1,5 +1,7 @@
 # Skills Manager Utility
 
+[English](README.md) | [中文](README_zh.md)
+
 A cross-platform toolset to manage, discover, and install Agent Skills from a shared repository (`wshobson/agents`) into your local development environment (VS Code or Claude Desktop).
 
 ## Key Features
