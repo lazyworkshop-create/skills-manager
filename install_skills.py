@@ -324,6 +324,14 @@ def browse_and_install_remote_skills(target_dir):
             print("No skills selected.")
             return
 
+        # Ask user next action
+        print("\nChoose Action:")
+        print("1. Install Only (Do not update skills.json)")
+        print("2. Install and Add to Configuration (Update skills.json)")
+        
+        action_choice = input("Enter choice (1/2) [Default: 1]: ").strip()
+        save_to_config = (action_choice == '2')
+
         # If target_dir was not provided initially, ask for it now
         if target_dir is None:
              target_dir = get_target_directory()
@@ -350,7 +358,7 @@ def browse_and_install_remote_skills(target_dir):
                 manage_dependencies(skill['name'], dest_path)
                 
                 # Update mapping
-                if skill['name'] not in SKILLS_MAPPING:
+                if save_to_config and skill['name'] not in SKILLS_MAPPING:
                     SKILLS_MAPPING[skill['name']] = skill['path']
                     config_changed = True
                     print(f"  Added '{skill['name']}' to configuration.")
