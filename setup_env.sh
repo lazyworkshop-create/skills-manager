@@ -31,5 +31,20 @@ else
     exit 1
 fi
 
+# Check Python Version Manager (uv or pyenv)
+echo "Checking for Python Version Manager..."
+if command -v uv &> /dev/null; then
+    echo "✓ uv is installed (Recommended)."
+elif command -v pyenv &> /dev/null; then
+    echo "✓ pyenv is installed."
+elif command -v conda &> /dev/null; then
+    echo "✓ conda is installed."
+else
+    echo "✗ No Python version manager found (uv, pyenv, or conda)."
+    echo "  We recommend installing 'uv' for fast Python env management:"
+    echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
+    # Optional: ask user to install? For now just informational as per request "Add a python version manager" support/check.
+fi
+
 echo ""
 echo "Environment setup complete. You can now run ./install_skills.sh"

@@ -39,7 +39,30 @@ if ($LASTEXITCODE -ne 0) {
     python -m ensurepip --default-pip
 }
 
-# 3. Check and Fix PATH for Python Scripts
+# 3. Check Python Version Manager
+Write-Host "Checking for Python Version Manager..."
+$uvInstalled = Get-Command uv -ErrorAction SilentlyContinue
+$pyenvInstalled = Get-Command pyenv -ErrorAction SilentlyContinue
+$condaInstalled = Get-Command conda -ErrorAction SilentlyContinue
+
+if ($uvInstalled) {
+    Write-Host "✓ uv is installed (Recommended)." -ForegroundColor Green
+} elseif ($pyenvInstalled) {
+    Write-Host "✓ pyenv is installed." -ForegroundColor Green
+} elseif ($condaInstalled) {
+    Write-Host "✓ conda is installed." -ForegroundColor Green
+} else {
+    Write-Host "✗ No Python version manager found (uv, pyenv, or conda)." -ForegroundColor Yellow
+    Write-Host "  Recommendation: Install 'uv' for fast Python management."
+    
+    $installUv = Read-Host "Do you want to install uv via Winget? (Y/N)"
+    if ($installUv -eq 'Y' -or $installUv -eq 'y') {
+        winget install -e --id astral-sh.uv
+        Write-Host "uv installed." -ForegroundColor Green
+    }
+}
+
+# 4. Check and Fix PATH for Python Scripts
 # Many tools (sqlfluff, dbt) install to the Scripts folder.
 Write-Host "Checking Python Scripts directory in PATH..."
 try {
