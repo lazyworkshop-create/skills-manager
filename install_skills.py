@@ -578,7 +578,13 @@ Examples:
     parser.add_argument("--upgrade", action="store_true", help="Check and update all installed skills")
     parser.add_argument("--ls", action="store_true", help="Browse available remote skills interactively")
     parser.add_argument("--yes", "-y", action="store_true", help="Skip interactive confirmation (installs all)")
+    parser.add_argument("--lang", help="Specify language (en/zh)", choices=["en", "zh"])
     args = parser.parse_args()
+
+    # Override Language if specified
+    if args.lang:
+        global CURRENT_LANG
+        CURRENT_LANG = args.lang
 
     # Determine Target Directory
     target_dir = None
