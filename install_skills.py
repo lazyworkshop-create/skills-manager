@@ -213,8 +213,11 @@ def get_target_directory():
     print(t("loc_project"))
     print(t("loc_claude"))
     print(t("loc_custom"))
+    print(t("quit_opt"))
     
     choice = input(t("enter_choice")).strip()
+    if choice.lower() == 'q':
+        sys.exit(0)
     
     if choice == "1":
         # Windows: %USERPROFILE%\.vscode\skills, Linux/Mac: ~/.vscode/skills
@@ -231,6 +234,8 @@ def get_target_directory():
              return Path.home() / ".config" / "Claude" / "skills"
     elif choice == "4":
         custom_path = input(t("enter_path")).strip()
+        if custom_path.lower() == 'q':
+            sys.exit(0)
         return Path(custom_path)
     else:
         # Default to project skills folder
@@ -365,9 +370,13 @@ def select_skills(skills_mapping):
             print(f"{idx}. {name}")
         print(t("install_all"))
         print(t("help_opt"))
+        print(t("quit_opt"))
         
         selection = input(t("enter_selection")).strip()
         
+        if selection.upper() == 'Q':
+            sys.exit(0)
+
         if selection.upper() == 'H':
             show_interactive_help()
             continue
@@ -464,6 +473,8 @@ def browse_categories_and_skills(skills):
         print(t("enter_install_nums"))
         
         skill_selection = input(t("selection_prompt")).strip()
+        if skill_selection.lower() == 'q':
+            sys.exit(0)
         if skill_selection.lower() == 'b':
             continue
             
@@ -509,8 +520,12 @@ def browse_and_install_remote_skills(target_dir):
         print(t("choose_action"))
         print(t("act_install_only"))
         print(t("act_install_config"))
+        print(t("quit_opt"))
         
         action_choice = input(t("enter_choice_short")).strip()
+        if action_choice.lower() == 'q':
+            sys.exit(0)
+        
         save_to_config = (action_choice == '2')
 
         # If target_dir was not provided initially, ask for it now
